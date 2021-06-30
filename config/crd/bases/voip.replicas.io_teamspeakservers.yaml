@@ -1,0 +1,288 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.4.1
+  creationTimestamp: null
+  name: teamspeakservers.voip.replicas.io
+spec:
+  group: voip.replicas.io
+  names:
+    kind: TeamSpeakServer
+    listKind: TeamSpeakServerList
+    plural: teamspeakservers
+    singular: teamspeakserver
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: TeamSpeakServer is the Schema for the teamspeakservers API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: TeamSpeakServerSpec defines the desired state of TeamSpeakServer
+            properties:
+              database:
+                description: Database defines the database backend for the TeamSpeakServer
+                properties:
+                  configManaged:
+                    description: DatabaseConfigManaged defines the database that will
+                      be deployed and managed by the operator
+                    properties:
+                      image:
+                        type: string
+                      imagePullPolicy:
+                        description: PullPolicy describes a policy for if/when to
+                          pull a container image
+                        type: string
+                      persistence:
+                        description: Persistence defines the persistent storage configuration
+                        properties:
+                          resources:
+                            description: ResourceRequirements describes the compute
+                              resource requirements.
+                            properties:
+                              limits:
+                                additionalProperties:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                description: 'Limits describes the maximum amount
+                                  of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                                type: object
+                              requests:
+                                additionalProperties:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                description: 'Requests describes the minimum amount
+                                  of compute resources required. If Requests is omitted
+                                  for a container, it defaults to Limits if that is
+                                  explicitly specified, otherwise to an implementation-defined
+                                  value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                                type: object
+                            type: object
+                          storageClassName:
+                            type: string
+                          volumeName:
+                            type: string
+                        required:
+                        - resources
+                        - storageClassName
+                        type: object
+                      resources:
+                        description: ResourceRequirements describes the compute resource
+                          requirements.
+                        properties:
+                          limits:
+                            additionalProperties:
+                              anyOf:
+                              - type: integer
+                              - type: string
+                              pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                              x-kubernetes-int-or-string: true
+                            description: 'Limits describes the maximum amount of compute
+                              resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                            type: object
+                          requests:
+                            additionalProperties:
+                              anyOf:
+                              - type: integer
+                              - type: string
+                              pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                              x-kubernetes-int-or-string: true
+                            description: 'Requests describes the minimum amount of
+                              compute resources required. If Requests is omitted for
+                              a container, it defaults to Limits if that is explicitly
+                              specified, otherwise to an implementation-defined value.
+                              More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                            type: object
+                        type: object
+                      storageClassName:
+                        type: string
+                      volumeName:
+                        type: string
+                    required:
+                    - image
+                    - imagePullPolicy
+                    - persistence
+                    - resources
+                    - storageClassName
+                    type: object
+                  configUnmanaged:
+                    description: DatabaseConfigUnmanaged defines the existing database
+                    properties:
+                      database:
+                        type: string
+                      host:
+                        type: string
+                      passwordSecretName:
+                        type: string
+                      port:
+                        type: integer
+                      user:
+                        type: string
+                    required:
+                    - database
+                    - host
+                    - passwordSecretName
+                    - port
+                    - user
+                    type: object
+                  managed:
+                    type: boolean
+                required:
+                - configManaged
+                - configUnmanaged
+                - managed
+                type: object
+              teamspeak:
+                description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+                  Important: Run "make" to regenerate code after modifying this file'
+                properties:
+                  automaticRollout:
+                    description: AutomaticRollout defines the rollout maintenance
+                      window for applying changes
+                    properties:
+                      enabled:
+                        type: boolean
+                      ignoreConnectedClients:
+                        type: boolean
+                      windowStart:
+                        format: date-time
+                        type: string
+                      windowStop:
+                        format: date-time
+                        type: string
+                    required:
+                    - enabled
+                    - ignoreConnectedClients
+                    - windowStart
+                    - windowStop
+                    type: object
+                  image:
+                    type: string
+                  imagePullPolicy:
+                    description: PullPolicy describes a policy for if/when to pull
+                      a container image
+                    type: string
+                  persistence:
+                    description: Persistence defines the persistent storage configuration
+                    properties:
+                      resources:
+                        description: ResourceRequirements describes the compute resource
+                          requirements.
+                        properties:
+                          limits:
+                            additionalProperties:
+                              anyOf:
+                              - type: integer
+                              - type: string
+                              pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                              x-kubernetes-int-or-string: true
+                            description: 'Limits describes the maximum amount of compute
+                              resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                            type: object
+                          requests:
+                            additionalProperties:
+                              anyOf:
+                              - type: integer
+                              - type: string
+                              pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                              x-kubernetes-int-or-string: true
+                            description: 'Requests describes the minimum amount of
+                              compute resources required. If Requests is omitted for
+                              a container, it defaults to Limits if that is explicitly
+                              specified, otherwise to an implementation-defined value.
+                              More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                            type: object
+                        type: object
+                      storageClassName:
+                        type: string
+                      volumeName:
+                        type: string
+                    required:
+                    - resources
+                    - storageClassName
+                    type: object
+                required:
+                - automaticRollout
+                - image
+                - imagePullPolicy
+                - persistence
+                type: object
+            required:
+            - database
+            - teamspeak
+            type: object
+          status:
+            description: TeamSpeakServerStatus defines the observed state of TeamSpeakServer
+            properties:
+              database:
+                description: DatabaseStatus defines databse status
+                properties:
+                  podName:
+                    type: string
+                  podReady:
+                    type: boolean
+                required:
+                - podName
+                - podReady
+                type: object
+              lastUpdated:
+                format: date-time
+                type: string
+              teamSpeak:
+                description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
+                  of cluster Important: Run "make" to regenerate code after modifying
+                  this file'
+                properties:
+                  lastRollout:
+                    format: date-time
+                    type: string
+                  podName:
+                    type: string
+                  podReady:
+                    type: boolean
+                  version:
+                    type: string
+                required:
+                - lastRollout
+                - podName
+                - podReady
+                - version
+                type: object
+            required:
+            - database
+            - lastUpdated
+            - teamSpeak
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

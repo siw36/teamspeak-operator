@@ -1,0 +1,4 @@
+## Append samples you want in your CSV to this file as resources ##
+resources:
+- voip_v1alpha1_teamspeakserver.yaml
+#+kubebuilder:scaffold:manifestskustomizesamples

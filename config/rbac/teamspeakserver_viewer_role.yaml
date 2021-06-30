@@ -1,0 +1,20 @@
+# permissions for end users to view teamspeakservers.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: teamspeakserver-viewer-role
+rules:
+- apiGroups:
+  - voip.replicas.io
+  resources:
+  - teamspeakservers
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - voip.replicas.io
+  resources:
+  - teamspeakservers/status
+  verbs:
+  - get

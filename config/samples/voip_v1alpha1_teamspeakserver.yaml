@@ -1,0 +1,7 @@
+apiVersion: voip.replicas.io/v1alpha1
+kind: TeamSpeakServer
+metadata:
+  name: teamspeakserver-sample
+spec:
+  # Add fields here
+  foo: bar
