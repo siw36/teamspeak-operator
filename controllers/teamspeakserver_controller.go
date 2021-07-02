@@ -25,6 +25,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	voipv1alpha1 "github.com/siw36/teamspeak-operator/api/v1alpha1"
+	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // TeamSpeakServerReconciler reconciles a TeamSpeakServer object
@@ -49,14 +52,116 @@ type TeamSpeakServerReconciler struct {
 func (r *TeamSpeakServerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
 
-	// your logic here
-
-	return ctrl.Result{}, nil
+	// Lookup the TeamSpeakServer instance for this reconcile request
+	tsCR := &voipv1alpha1.TeamSpeakServer{}
+	err := r.Get(ctx, req.NamespacedName, tsCR)
+	return ctrl.Result{Requeue: true}, err
 }
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *TeamSpeakServerReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&voipv1alpha1.TeamSpeakServer{}).
+		Owns(&appsv1.Deployment{}).
 		Complete(r)
+}
+
+func (r *TeamSpeakServerReconciler) teamspeakserverDeployment(tsCR *voipv1alpha1.TeamSpeakServer, imageURL string, imageTag string) *appsv1.Deployment {
+
+	databasePassword := err := r.Get(ctx, req.NamespacedName, tsCR)
+
+	labels := map[string]string{
+		"app": tsCR.Name,
+	}
+	matchlabels := map[string]string{
+		"app": tsCR.Name,
+	}
+
+	deployment := &appsv1.Deployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "teamspeak-server",
+			Namespace: tsCR.Namespace,
+			Labels:    labels,
+		},
+
+		Spec: appsv1.DeploymentSpec{
+			Selector: &metav1.LabelSelector{
+				MatchLabels: matchlabels,
+			},
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: matchlabels,
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{{
+						Image: tsCR.Spec.TeamSpeak.Image,
+						Name:  "teamspeak",
+
+						Env: []corev1.EnvVar{{
+							Name:  "TS3SERVER_DB_PLUGIN",
+							Value: "ts3db_mariadb",
+						},
+							{
+								Name:  "TS3SERVER_DB_SQLCREATEPATH",
+								Value: "create_mariadb",
+							},
+							{
+								Name:  "TS3SERVER_DB_HOST",
+								Value: tsCR.Spec.Database.ConfigUnmanaged.Host,
+							},
+							{
+								Name:  "TS3SERVER_DB_USER",
+								Value: tsCR.Spec.Database.ConfigUnmanaged.User,
+							},
+							{
+								Name:  "TS3SERVER_DB_PASSWORD",
+								Value: tsCR.Spec.Database.ConfigUnmanaged.User,
+							},
+							{
+								Name:  "TS3SERVER_DB_NAME",
+								Value: tsCR.Spec.Database.ConfigUnmanaged.Database,
+							},
+							{
+								Name:  "TS3SERVER_DB_WAITUNTILREADY",
+								Value: "5",
+							},
+							{
+								Name:  "TS3SERVER_LICENSE",
+								Value: "accept",
+							},
+						},
+
+						Ports: []corev1.ContainerPort{{
+							ContainerPort: 80,
+							Name:          "wordpress-port",
+						}},
+						VolumeMounts: []corev1.VolumeMount{
+							{
+								Name:      "wordpress-persistent-storage",
+								MountPath: "/var/www/html",
+							},
+						},
+					},
+					},
+
+					Volumes: []corev1.Volume{
+
+						{
+							Name: "wordpress-persistent-storage",
+							VolumeSource: corev1.VolumeSource{
+
+								PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
+									ClaimName: "wp-pv-claim",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	controllerutil.SetControllerReference(tsCR, deployment, r.scheme)
+	return dep
+
 }
